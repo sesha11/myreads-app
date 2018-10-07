@@ -5,24 +5,51 @@ import { Route } from 'react-router-dom';
 import SearchBooks from './components/SearchBooks';
 import ListBooks from './components/ListBooks';
 import Shelf from './models/Shelf';
-import * as BooksAPI from './BooksAPI';
 
 class BooksApp extends React.Component {
-  shelves = ['Currently Reading', 'Want to Read', 'Read'];
-
   constructor(props) {
     super(props);
-    this.state = this.shelves.reduce((hash, obj) => {
-      hash[obj] = new Shelf(obj);
-      return hash;
-    }, {});
+    this.findBook = this.findBook.bind(this);
+    this.addBook = this.addBook.bind(this);
+    this.updateShelf = this.updateShelf.bind(this);
+  }
+
+  shelves = [
+    new Shelf('Currently Reading', 'currentlyReading'),
+    new Shelf('Want to Read', 'wantToRead'),
+    new Shelf('Read', 'read'),
+    new Shelf('None', 'none')
+  ];
+
+  state = {
+    books: []
+  }
+
+  findBook(searchBook) {
+    return this.state.books.find(book => book.id === searchBook.id);
+  }
+
+  addBook(book, shelf) {
+    book.shelf = shelf;
+    this.setState(currentState => {
+      currentState.books.push(book);
+    })
+  }
+
+  updateShelf(book, shelf) {
+    book.shelf = shelf;
+    // this.setState(currentState => {
+
+    // })
   }
 
   render() {
     return (
       <div className="app">
-        <Route exact path='/' render={() => (<ListBooks shelves={this.shelves}/>)}/>
-        <Route path='/search' component={SearchBooks} />
+        <Route exact path='/' render={() => (<ListBooks shelves={this.shelves} books={this.state.books}/>)}/>
+        <Route path='/search' render={() => (
+          <SearchBooks shelves={this.shelves} findBook={this.findBook} addBook={this.addBook} updateShelf={this.updateShelf}/>
+        )}/>
       </div>
     )
   }
