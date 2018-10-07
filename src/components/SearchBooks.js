@@ -2,20 +2,21 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import * as BooksAPI from "../BooksAPI";
 import BookInfo from "./BookInfo";
+import { debounce } from "throttle-debounce";
 
 /*
 This component will enable users to search for books and add them to the dashboard page
 */
-const ENTER_KEY = 13;
 class SearchBooks extends Component {
   constructor(props) {
     super(props);
     this.setState = this.setState.bind(this);
+    this.debouncedSearch = debounce(500, this.searchBooks);
   }
 
   // The search text box and search results are stored in the component's state
   state = {
-    errorMessage: '',
+    errorMessage: 'Please provide a query in the search textbox',
     searchText: "",
     books: []
   };
@@ -28,36 +29,38 @@ class SearchBooks extends Component {
     3. Add the searchresult to component's state
   */
   searchBooks() {
-    BooksAPI.search(this.state.searchText).then(books => {
-      if(books.error != null) {
-        this.setState({books: [], errorMessage: 'No matching books found'});
-      } else {
-        books.forEach((book, index) => {
-          const result = this.props.findBook(book);
-          if (result != null) {
-            books[index] = result;
-          }
-        });
-        this.setState({
-          books: books,
-          errorMessage: ''
-        });
-      }
-    }, err => {
-      this.setState({books: [], errorMessage: 'Failed to perform the operation'});
-    });
-  }
-
-  // This function is called when user presses a key. Search is performed when user presses an enter key
-  handleSearch(event) {
-    if (event.keyCode === ENTER_KEY) {
-      this.searchBooks();
+    if(this.state.searchText === '') {
+      this.setState({
+        books: [],
+        errorMessage: 'Please provide a query in the search textbox'
+      });
+    } else {
+      BooksAPI.search(this.state.searchText).then(books => {
+        if(books.error != null) {
+          this.setState({books: [], errorMessage: 'No matching books found'});
+        } else {
+          books.forEach((book, index) => {
+            const result = this.props.findBook(book);
+            if (result != null) {
+              books[index] = result;
+            }
+          });
+          this.setState({
+            books: books,
+            errorMessage: ''
+          });
+        }
+      }, err => {
+        this.setState({books: [], errorMessage: 'Failed to perform the operation'});
+      });
     }
   }
 
   // This function is called when the textbox contents are changed. The textbox value is added to the component's state
   handleChange(event) {
-    this.setState({ searchText: event.target.value });
+    this.setState({ searchText: event.target.value }, () => {
+      this.debouncedSearch();
+    })
   }
 
   /*
@@ -104,7 +107,6 @@ class SearchBooks extends Component {
               placeholder="Search by title or author"
               value={this.state.searchText}
               onChange={this.handleChange.bind(this)}
-              onKeyDown={this.handleSearch.bind(this)}
             />
           </div>
         </div>

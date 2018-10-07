@@ -17,7 +17,7 @@ class BookInfo extends Component {
           />
           <div className="book-shelf-changer">
             <select
-              defaultValue={book.shelf == null ? "none" : book.shelf.value}
+              defaultValue={book.shelf == null ? "none" : book.shelf}
               onChange={event => onContextMenuChange(event.target.value)}
             >
               <option value="move" disabled>
