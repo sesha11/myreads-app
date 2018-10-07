@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 /*
 This is the main view of the My Reads application, which shows book shelves and the books they contain
@@ -162,7 +163,7 @@ class ListBooks extends Component {
           </div>
         </div>
         <div className="open-search">
-          <a onClick={() => this.setState({ showSearchPage: true })}>Add a book</a>
+          <Link to="search" />
         </div>
       </div>
     )
