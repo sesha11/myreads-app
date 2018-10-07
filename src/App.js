@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 import SearchBooks from './components/SearchBooks';
 import ListBooks from './components/ListBooks';
 import Shelf from './models/Shelf';
+import * as BooksAPI from "./BooksAPI";
 
 class BooksApp extends React.Component {
   constructor(props) {
@@ -25,6 +26,17 @@ class BooksApp extends React.Component {
   // The state of the app component will contain the list of books being used by the user
   state = {
     books: []
+  }
+
+  componentDidMount() {
+    BooksAPI.getAll().then(books => {
+      console.log(books);
+      this.setState({
+        books: books
+      });
+    }, err => {
+      console.log('someething went wrong');
+    })
   }
 
   // returns a book if present in the app component's state
@@ -50,6 +62,7 @@ class BooksApp extends React.Component {
   }
 
   render() {
+    console.log('calling render of app');
     return (
       <div className="app">
         <Route exact path='/' render={() => (<ListBooks shelves={this.shelves} books={this.state.books} updateShelf={this.updateShelf}/>)}/>

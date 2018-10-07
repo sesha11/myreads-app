@@ -18,7 +18,7 @@ class ListBooks extends Component {
       shelf => shelf.value === shelfValue
     );
     BooksAPI.update(book, shelf.value).then(() => {
-      this.props.updateShelf(book, shelf);
+      this.props.updateShelf(book, shelf.value);
       this.setState(currentState => currentState.errorMessage = '');
     }, err => {
       this.setState({errorMessage: 'Failed to perform the operation'});
@@ -26,10 +26,12 @@ class ListBooks extends Component {
   }
 
   filterBooks(shelf) {
-    return this.props.books.filter(book => book.shelf.value === shelf.value);
+    return this.props.books.filter(book => book.shelf === shelf.value);
   }
 
   render() {
+    console.log('calling render of listbooks');
+    console.log(this.props.books);
     return (
       <div className="list-books">
         <div className="list-books-title">

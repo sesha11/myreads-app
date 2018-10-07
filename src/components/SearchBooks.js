@@ -75,9 +75,9 @@ class SearchBooks extends Component {
     BooksAPI.update(book, shelf.value).then(() => {
       const result = this.props.findBook(book);
       if (result == null) {
-        this.props.addBook(book, shelf);
+        this.props.addBook(book, shelf.value);
       } else {
-        this.props.updateShelf(result, shelf);
+        this.props.updateShelf(result, shelf.value);
       }
       this.setState(currentState => currentState.errorMessage = '');
     }, err => {
