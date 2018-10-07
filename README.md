@@ -4,7 +4,7 @@ The MyReads project creates a bookshelf that allows a user to select and categor
 
 # Workspace Setup
 
-Make sure your `Node.js` and `npm` are installed before setting up the workspace.
+Make sure `Node.js` and `npm` are installed before setting up the workspace.
 
 Download the project and execute the following commands.
 
