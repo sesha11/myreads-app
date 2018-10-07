@@ -1,20 +1,32 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import BookInfo from './BookInfo';
+import * as BooksAPI from "../BooksAPI";
 
 /*
 This is the main view of the My Reads application, which shows book shelves and the books they contain
 */
 class ListBooks extends Component {
-  updateBookShelf(book, event) {
-    // const shelf = this.props.shelves[event.target.value];
-    // BooksAPI.update(book, shelf.value).then(() => {
-    //   const result = this.props.findBook(book);
-    //   if(result == null) {
-    //     this.props.addBook(book, shelf);
-    //   } else {
-        
-    //   }
-    // });
+  state = {
+    errorMessage: ''
+  }
+  /*
+    call callback method from App to update book's shelf info
+  */
+  updateBookShelf(book, shelfValue) {
+    const shelf = this.props.shelves.find(
+      shelf => shelf.value === shelfValue
+    );
+    BooksAPI.update(book, shelf.value).then(() => {
+      this.props.updateShelf(book, shelf);
+      this.setState(currentState => currentState.errorMessage = '');
+    }, err => {
+      this.setState({errorMessage: 'Failed to perform the operation'});
+    });
+  }
+
+  filterBooks(shelf) {
+    return this.props.books.filter(book => book.shelf.value === shelf.value);
   }
 
   render() {
@@ -23,43 +35,41 @@ class ListBooks extends Component {
         <div className="list-books-title">
           <h1>MyReads</h1>
         </div>
-        <div className="list-books-content">
-          <div>
-            <div className="bookshelf">
-              <h2 className="bookshelf-title">Currently Reading</h2>
-              <div className="bookshelf-books">
-                <ol className="books-grid">
-                {
-                  this.props.books.map(book =>
-                    (
-                      <li key={book.id}>
-                        <div className="book">
-                          <div className="book-top">
-                            <div className="book-cover"
-                            style={{ width: 128, height: 193, backgroundImage: 'url(' + book.imageLinks.thumbnail + ')' }}></div>
-                            <div className="book-shelf-changer">
-                              <select value="none" onChange={ event => this.updateBookShelf(book, event) }>
-                                <option value="move" disabled>Move to...</option>
-                                {
-                                  this.props.shelves.map((shelf, index) => (
-                                    <option key={shelf.value} value={index}>{shelf.name}</option>
-                                  ))
-                                }
-                              </select>
-                            </div>
-                          </div>
-                          <div className="book-title">{book.title}</div>
-                          <div className="book-authors">{book.authors == null ? '' : book.authors.join(', ')}</div>
-                        </div>
-                      </li>
-                    )
-                  )
-                }
-                </ol>
+        <p style={{color: 'red'}}>{this.state.errorMessage}</p>
+        {
+          this.props.shelves.filter(shelf => shelf.value !== 'none').map(shelf => (
+            <div className="list-books-content" key={shelf.value}>
+              <div>
+                <div className="bookshelf">
+                  <h2 className="bookshelf-title">{shelf.name}</h2>
+                  <div className="bookshelf-books">
+                    <ol className="books-grid">
+                    {
+                      (() => {
+                        const filteredBooks = this.filterBooks(shelf);
+                        if(filteredBooks.length === 0) {
+                          return <p>No Books added to this shelf</p>
+                        } else {
+                          return this.filterBooks(shelf).map(book =>
+                          (
+                            <li key={book.id}>
+                              <BookInfo
+                                shelves={this.props.shelves}
+                                book={book}
+                                onContextMenuChange={shelfValue => this.updateBookShelf(book, shelfValue)}
+                              />
+                            </li>
+                          ))
+                        }
+                      })()
+                    }
+                    </ol>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
+            </div>                    
+          ))
+        }
         <div className="open-search">
           <Link to="search" />
         </div>
